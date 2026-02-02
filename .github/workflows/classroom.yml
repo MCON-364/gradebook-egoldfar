@@ -1,0 +1,24 @@
+name: Classroom Autograder
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: |
+          mkdir -p src/test/java/edu/course/gradebook
+          cp .github/tests/AutoGraderGradebookTest.java src/test/java/edu/course/gradebook/AutoGraderGradebookTest.java
+      - name: Run autograding tests
+        id: autograder
+        uses: education/autograding@v1

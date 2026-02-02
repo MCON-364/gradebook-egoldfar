@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "run unit tests",
+      "setup": "",
+      "run": "mvn -B -DskipTests=false test",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 100
+    }
+  ]
+}
