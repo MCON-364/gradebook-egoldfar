@@ -114,13 +114,17 @@ public class Gradebook {
         }
         double classAverage = 0.0;
         var students = gradesByStudent.keySet();
+        var numStudents = 0;
         for (var student : students) {
             classAverage += averageFor(student).isPresent()?  averageFor(student).get() : 0.0;
+            if (averageFor(student).isPresent()) {
+                numStudents++;
+            }
         }
         if (classAverage == 0.0) {
             return Optional.empty();
         }
-        return Optional.of(classAverage/students.size());
+        return Optional.of(classAverage/numStudents);
     }
 
     public boolean undo() {
