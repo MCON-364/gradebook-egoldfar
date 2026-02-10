@@ -173,7 +173,8 @@ public class GradebookTest {
         gradebook.addGrade("Mia", 90);
         gradebook.addStudent("Nina");
         gradebook.addGrade("Nina", 80);
+        gradebook.addGrade("Nina", 85);
         assertTrue(gradebook.classAverage().isPresent());
-        assertEquals(85.0, gradebook.classAverage().get());
+        assertEquals(86.25, gradebook.classAverage().get());
     }
 }   
