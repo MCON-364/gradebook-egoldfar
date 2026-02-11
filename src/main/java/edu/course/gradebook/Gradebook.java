@@ -1,6 +1,5 @@
 package edu.course.gradebook;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Gradebook {
@@ -32,10 +31,11 @@ public class Gradebook {
     }
 
     public boolean addGrade(String name, int grade) {
-        var grades = gradesByStudent.get(name);
-        if (grades == null) {
+        var gradesOptional = findStudentGrades(name);
+        if (gradesOptional.isEmpty()) {
             return false;
         }
+        var grades = gradesOptional.get();
         grades.add(grade);
         activityLog.addFirst("Added grade " + grade + " for student " + name);
         undoStack.push(g -> g.removeLastGrade(name));
@@ -43,24 +43,28 @@ public class Gradebook {
     }
 
     public int removeLastGrade(String name) {
+        var gradesOptional = findStudentGrades(name);
+        if (gradesOptional.isEmpty()) {
+            activityLog.addFirst(name + " is not in the student list");
+            return -1;
+        }
         try {
-            int grade = gradesByStudent.get(name).removeLast();
+            var grades = gradesOptional.get();
+            int grade = grades.removeLast();
             activityLog.addFirst("Removed grade " + grade + " for student " + name);
             return grade;
         } catch (NoSuchElementException e) {
             activityLog.addFirst("No grade for student " + name);
             return -1;
-        } catch (NullPointerException e) {
-            activityLog.addFirst(name + " is not in the student list");
-            return -1;
         }
     }
 
     public boolean removeStudent(String name) {
-        ArrayList<Integer> grades =  (ArrayList<Integer>) gradesByStudent.get(name);
-        if (grades == null) {
+        var gradesOptional = findStudentGrades(name);
+        if (gradesOptional.isEmpty()) {
             return false;
         }
+        var grades = (ArrayList<Integer>) gradesOptional.get();
         gradesByStudent.remove(name);
         if (grades.isEmpty()) {
             activityLog.addFirst("Removed student " + name + " there were no grades currently recorded");
@@ -73,10 +77,12 @@ public class Gradebook {
     }
 
     public Optional<Double> averageFor(String name) {
-        var grades = gradesByStudent.get(name);
-        if (grades == null) {
+        var gradesOptional = findStudentGrades(name);
+        if (gradesOptional.isEmpty()) {
             return Optional.empty();
-        } else if (grades.isEmpty()) {
+        }
+        var grades = gradesOptional.get();
+        if (grades.isEmpty()) {
             return Optional.empty();
         } else {
             var average = 0.0;
@@ -114,17 +120,25 @@ public class Gradebook {
         }
         double classAverage = 0.0;
         var students = gradesByStudent.keySet();
-        var numStudents = 0;
+        var numGrades = 0;
         for (var student : students) {
-            classAverage += averageFor(student).isPresent()?  averageFor(student).get() : 0.0;
-            if (averageFor(student).isPresent()) {
-                numStudents++;
+            var optionalGrades = findStudentGrades(student);
+            if (optionalGrades.isEmpty()) {
+                continue;
+            }
+            var grades = optionalGrades.get();
+            if (grades.isEmpty()) {
+                continue;
+            }
+            for (int grade : grades) {
+                classAverage += grade;
+                numGrades++;
             }
         }
         if (classAverage == 0.0) {
             return Optional.empty();
         }
-        return Optional.of(classAverage/numStudents);
+        return Optional.of(classAverage/numGrades);
     }
 
     public boolean undo() {
