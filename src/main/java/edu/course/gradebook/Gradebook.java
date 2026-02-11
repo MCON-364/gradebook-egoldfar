@@ -144,7 +144,7 @@ public class Gradebook {
     public boolean undo() {
         try {
             undoStack.pop().undo(this);
-            activityLog.addFirst("Undid last action");
+            activityLog.addFirst("Undo");
             return true;
         } catch (NoSuchElementException e) {
             return false;
